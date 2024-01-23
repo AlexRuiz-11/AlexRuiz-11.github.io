@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const imagePath = "images/";
 
     // Obtener la lista de archivos del repositorio
-    fetch(`https://raw.githubusercontent.com/AlexRuiz-11/AlexRuiz-11.github.io/contents/images`)
+    fetch(`https://api.github.com/repos/${username}/${repoName}/contents/${imagePath}`)
         .then(response => response.json())
         .then(data => {
             const imageNames = data
