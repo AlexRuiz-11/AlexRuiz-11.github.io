@@ -1,26 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
     const galleryContainer = document.getElementById("gallery");
 
+    // Nombre de usuario y nombre del repositorio
+    const username = "AlexRuiz-11";
+    const repoName = "AlexRuiz-11.github.io";
+
     // Cambia la ruta según la ubicación de tu carpeta de imágenes
     const imagePath = "images/";
 
-    // Obtener la lista de imágenes mediante una petición Fetch
-    fetch(imagePath)
-        .then(response => response.text())
+    // Obtener la lista de archivos del repositorio
+    fetch(`https://api.github.com/repos/AlexRuiz-11/AlexRuiz-11.github.io/contents/images`)
+        .then(response => response.json())
         .then(data => {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(data, "text/html");
+            const imageNames = data
+                .filter(item => item.type === "file" && /\.(jpg|jpeg|png|gif|tiff|JPG|JPEG|PNG|GIF|TIFF)$/i.test(item.name))
+                .map(item => item.name);
 
-            const fileNodes = doc.querySelectorAll("a");
-            const imageNames = Array.from(fileNodes)
-                .map(node => node.getAttribute("href"))
-                .filter(name => /\.(jpg|jpeg|png|gif|tiff|JPG|JPEG|PNG|GIF|TIFF)$/i.test(name)); // Filtra por extensiones JPG, JPEG, PNG y GIF
-
-            // Calcular el número de columnas
+            // Número de columnas
             const columns = 6;
 
             // Calcular el número de filas necesario
             const rows = Math.ceil(imageNames.length / columns);
+
 
             // Crear elementos de imagen y agregar al contenedor de la galería
             let imgIndex = 0;
@@ -48,28 +49,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 galleryContainer.appendChild(rowContainer);
-
-
             }
         })
-
         .catch(error => console.error("Error al obtener la lista de imágenes:", error));
 
-        // Función para mostrar la imagen en pantalla completa
-            function showFullscreenImage(imageSrc) {
-            const fullscreenContainer = document.createElement("div");
-            fullscreenContainer.classList.add("fullscreen-container");
+    // Función para mostrar la imagen en pantalla completa
+    function showFullscreenImage(imageSrc) {
+        const fullscreenContainer = document.createElement("div");
+        fullscreenContainer.classList.add("fullscreen-container");
 
-            const fullscreenImage = document.createElement("img");
-            fullscreenImage.src = imageSrc;
+        const fullscreenImage = document.createElement("img");
+        fullscreenImage.src = imageSrc;
 
-            // Agregar evento de clic para cerrar la imagen en pantalla completa
-            fullscreenImage.addEventListener("click", function () {
-                fullscreenContainer.remove();
-            });
+        // Agregar evento de clic para cerrar la imagen en pantalla completa
+        fullscreenImage.addEventListener("click", function () {
+            fullscreenContainer.remove();
+        });
 
-            fullscreenContainer.appendChild(fullscreenImage);
-            document.body.appendChild(fullscreenContainer);
+        fullscreenContainer.appendChild(fullscreenImage);
+        document.body.appendChild(fullscreenContainer);
 
         }
 });
