@@ -1,27 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
     const galleryContainer = document.getElementById("gallery");
 
-    // Nombre de usuario y nombre del repositorio
-    const username = "AlexRuiz-11";
-    const repoName = "AlexRuiz-11.github.io";
-
-    // Cambia la ruta según la ubicación de tu carpeta de imágenes
+    // Ruta de la carpeta de imágenes
     const imagePath = "images/";
 
     // Obtener la lista de archivos del repositorio
-    fetch(`https://api.github.com/repos/${username}/${repoName}/contents/${imagePath}`)
+    fetch(`https://api.github.com/repos/AlexRuiz-11/AlexRuiz-11.github.io/contents/${imagePath}`)
         .then(response => response.json())
         .then(data => {
             const imageNames = data
-                .filter(item => item.type === "file" && /\.(jpg|jpeg|png|gif|tiff|JPG|JPEG|PNG|GIF|TIFF)$/i.test(item.name))
+                .filter(item => item.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(item.name))
                 .map(item => item.name);
 
-            // Número de columnas
+            // Calcular el número de columnas y filas
             const columns = 6;
-
-            // Calcular el número de filas necesario
             const rows = Math.ceil(imageNames.length / columns);
-
 
             // Crear elementos de imagen y agregar al contenedor de la galería
             let imgIndex = 0;
@@ -68,6 +61,5 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fullscreenContainer.appendChild(fullscreenImage);
         document.body.appendChild(fullscreenContainer);
-
-        }
+    }
 });
