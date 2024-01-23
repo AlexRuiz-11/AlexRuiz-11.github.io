@@ -1,53 +1,75 @@
 document.addEventListener("DOMContentLoaded", function () {
     const galleryContainer = document.getElementById("gallery");
 
-    // Ruta de la carpeta de imágenes
-    const imgFolder = "img/";
+    // Cambia la ruta según la ubicación de tu carpeta de imágenes
+    const imagePath = "images/";
 
-    // Obtener todas las imágenes en la carpeta
-    fetch(imgFolder)
+    // Obtener la lista de imágenes mediante una petición Fetch
+    fetch(imagePath)
         .then(response => response.text())
-        .then(html => {
+        .then(data => {
             const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            const images = Array.from(doc.querySelectorAll('a[href$=".jpg"], a[href$=".jpeg"], a[href$=".png"], a[href$=".gif"]'));
+            const doc = parser.parseFromString(data, "text/html");
 
-            // Crear elementos de imagen y agregar al contenedor
-            images.forEach(image => {
-                const imgSrc = imgFolder + image.getAttribute('href');
-                const imgContainer = createImageContainer(imgSrc);
-                galleryContainer.appendChild(imgContainer);
+            const fileNodes = doc.querySelectorAll("a");
+            const imageNames = Array.from(fileNodes)
+                .map(node => node.getAttribute("href"))
+                .filter(name => /\.(jpg|jpeg|png|gif|tiff|JPG|JPEG|PNG|GIF|TIFF)$/i.test(name)); // Filtra por extensiones JPG, JPEG, PNG y GIF
+
+            // Número de columnas
+            const columns = 6;
+
+            // Calcular el número de filas necesario
+            const rows = Math.ceil(imageNames.length / columns);
+
+            // Crear elementos de imagen y agregar al contenedor de la galería
+            let imgIndex = 0;
+            for (let i = 0; i < rows; i++) {
+                const rowContainer = document.createElement("div");
+                rowContainer.classList.add("img-row");
+
+                for (let j = 0; j < columns; j++) {
+                    if (imgIndex < imageNames.length) {
+                        const imgContainer = document.createElement("div");
+                        imgContainer.classList.add("img-container");
+
+                        const imgElement = document.createElement("img");
+                        imgElement.src = imagePath + imageNames[imgIndex];
+
+                        // Agregar evento de clic para mostrar la imagen en pantalla completa
+                        imgElement.addEventListener("click", function () {
+                            showFullscreenImage(imgElement.src);
+                        });
+
+                        imgContainer.appendChild(imgElement);
+                        rowContainer.appendChild(imgContainer);
+                        imgIndex++;
+                    }
+                }
+
+                galleryContainer.appendChild(rowContainer);
+
+
+            }
+        })
+
+        .catch(error => console.error("Error al obtener la lista de imágenes:", error));
+
+        // Función para mostrar la imagen en pantalla completa
+            function showFullscreenImage(imageSrc) {
+            const fullscreenContainer = document.createElement("div");
+            fullscreenContainer.classList.add("fullscreen-container");
+
+            const fullscreenImage = document.createElement("img");
+            fullscreenImage.src = imageSrc;
+
+            // Agregar evento de clic para cerrar la imagen en pantalla completa
+            fullscreenImage.addEventListener("click", function () {
+                fullscreenContainer.remove();
             });
-        });
 
-    // Función para crear un contenedor de imagen con superposición
-    function createImageContainer(src) {
-        const imgContainer = document.createElement("div");
-        imgContainer.className = "img-container";
+            fullscreenContainer.appendChild(fullscreenImage);
+            document.body.appendChild(fullscreenContainer);
 
-        const img = document.createElement("img");
-        img.src = src;
-
-        const overlay = document.createElement("div");
-        overlay.className = "overlay";
-
-        const overlayImg = document.createElement("img");
-        overlayImg.src = src;
-
-        overlay.appendChild(overlayImg);
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(overlay);
-
-        // Agregar evento de clic para ampliar/minimizar la imagen
-        imgContainer.addEventListener("click", function () {
-            toggleFullscreen(imgContainer);
-        });
-
-        return imgContainer;
-    }
-
-    // Función para alternar entre ocupar toda la pantalla y tamaño original
-    function toggleFullscreen(imgContainer) {
-        imgContainer.classList.toggle("fullscreen");
-    }
+        }
 });
